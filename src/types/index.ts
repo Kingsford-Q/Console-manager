@@ -26,6 +26,7 @@ export interface BusinessCertificate {
   business_name: string
   city: string
   duns_number: string
+  website?: string
   notes?: string
   created_at: string
 }

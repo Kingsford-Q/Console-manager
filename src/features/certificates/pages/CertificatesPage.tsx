@@ -38,6 +38,7 @@ const emptyForm = {
   business_name: '',
   city: '',
   duns_number: '',
+  website: '',
   notes: '',
 }
 
@@ -88,6 +89,7 @@ export default function CertificatesPage() {
       business_name: cert.business_name,
       city: cert.city,
       duns_number: cert.duns_number,
+      website: cert.website ?? '',
       notes: cert.notes ?? '',
     })
     setDialogOpen(true)
@@ -156,6 +158,7 @@ export default function CertificatesPage() {
                 <TableHead>Business Name</TableHead>
                 <TableHead>City</TableHead>
                 <TableHead>DUNS #</TableHead>
+                <TableHead>Website</TableHead>
                 <TableHead>Usage</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
@@ -167,6 +170,20 @@ export default function CertificatesPage() {
                   <TableCell className="font-medium">{cert.business_name}</TableCell>
                   <TableCell>{cert.city}</TableCell>
                   <TableCell className="text-muted-foreground">{cert.duns_number}</TableCell>
+                  <TableCell>
+                    {cert.website ? (
+                      <a
+                        href={cert.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        {cert.website}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                       {usageCounts[cert.id] || 0} console{usageCounts[cert.id] !== 1 ? 's' : ''}
@@ -224,6 +241,16 @@ export default function CertificatesPage() {
                   required
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                type="url"
+                value={form.website}
+                onChange={(e) => setForm({ ...form, website: e.target.value })}
+                placeholder="https://example.com"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
