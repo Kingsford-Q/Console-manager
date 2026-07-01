@@ -51,6 +51,7 @@ export const statusToColor = (status: string): string => {
     production: 'bg-blue-100 text-blue-800',
     rejected: 'bg-red-100 text-red-800',
     faulty: 'bg-orange-100 text-orange-800',
+    sold: 'bg-purple-100 text-purple-800',
     used: 'bg-blue-100 text-blue-800',
     unused: 'bg-gray-100 text-gray-800',
     under_review: 'bg-yellow-100 text-yellow-800',

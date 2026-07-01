@@ -14,6 +14,8 @@ export const gmailService = {
       query = query.eq('status', status)
     }
 
+    // Sort by status: used/sold first, then unused, then by created_at
+    query = query.order('status', { ascending: false })
     query = query.order('created_at', { ascending: false })
 
     const { data, error } = await query

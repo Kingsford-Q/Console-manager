@@ -68,6 +68,16 @@ export const consoleService = {
       .select()
 
     if (error) throw error
+
+    // If status is being set to sold, update the linked gmail to sold
+    if (updates.status === 'sold') {
+      const console = data[0] as ConsoleAccount
+      await supabase
+        .from('gmails')
+        .update({ status: 'sold' })
+        .eq('id', console.gmail_id)
+    }
+
     return data[0] as ConsoleAccount
   },
 

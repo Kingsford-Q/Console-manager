@@ -41,7 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatDate, statusToLabel } from '@/utils/formatting'
+import { statusToLabel } from '@/utils/formatting'
 
 const CONSOLE_STATUSES: ConsoleStatus[] = [
   'approved',
@@ -49,6 +49,7 @@ const CONSOLE_STATUSES: ConsoleStatus[] = [
   'production',
   'rejected',
   'faulty',
+  'sold',
 ]
 
 const emptyForm = {
@@ -175,7 +176,7 @@ export default function ConsolesPage() {
                 <TableHead>Gmail</TableHead>
                 <TableHead>Certificate</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
+                <TableHead>Sold</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -190,8 +191,16 @@ export default function ConsolesPage() {
                     {console.certificate?.business_name ?? '—'}
                   </TableCell>
                   <TableCell><StatusBadge status={console.status} /></TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(console.created_at)}
+                  <TableCell>
+                    {console.status === 'sold' ? (
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                        Yes
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                        No
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">

@@ -39,19 +39,17 @@ import { formatDate } from '@/utils/formatting'
 type GmailForm = {
   gmail_address: string
   password: string
-  recovery_email: string
-  recovery_phone: string
-  status: 'unused' | 'used'
+  status: 'unused' | 'used' | 'sold'
   notes: string
+  created_by?: string
 }
 
 const emptyForm: GmailForm = {
   gmail_address: '',
   password: '',
-  recovery_email: '',
-  recovery_phone: '',
   status: 'unused' as const,
   notes: '',
+  created_by: '',
 }
 
 export default function GmailsPage() {
@@ -81,10 +79,9 @@ export default function GmailsPage() {
     setForm({
       gmail_address: gmail.gmail_address,
       password: gmail.password,
-      recovery_email: gmail.recovery_email ?? '',
-      recovery_phone: gmail.recovery_phone ?? '',
       status: gmail.status,
       notes: gmail.notes ?? '',
+      created_by: gmail.created_by ?? '',
     })
     setDialogOpen(true)
   }
@@ -135,6 +132,7 @@ export default function GmailsPage() {
         filterOptions={[
           { value: 'unused', label: 'Unused' },
           { value: 'used', label: 'Used' },
+          { value: 'sold', label: 'Sold' },
         ]}
         filterPlaceholder="All statuses"
         onAdd={openCreate}
@@ -158,7 +156,7 @@ export default function GmailsPage() {
               <TableRow>
                 <TableHead>Email</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Recovery Email</TableHead>
+                <TableHead>Created By</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
@@ -169,7 +167,7 @@ export default function GmailsPage() {
                   <TableCell className="font-medium">{gmail.gmail_address}</TableCell>
                   <TableCell><StatusBadge status={gmail.status} /></TableCell>
                   <TableCell className="text-muted-foreground">
-                    {gmail.recovery_email || '—'}
+                    {gmail.created_by || '—'}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatDate(gmail.created_at)}
@@ -223,30 +221,20 @@ export default function GmailsPage() {
                 required
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="recovery_email">Recovery Email</Label>
-                <Input
-                  id="recovery_email"
-                  value={form.recovery_email}
-                  onChange={(e) => setForm({ ...form, recovery_email: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="recovery_phone">Recovery Phone</Label>
-                <Input
-                  id="recovery_phone"
-                  value={form.recovery_phone}
-                  onChange={(e) => setForm({ ...form, recovery_phone: e.target.value })}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="created_by">Created By</Label>
+              <Input
+                id="created_by"
+                value={form.created_by}
+                onChange={(e) => setForm({ ...form, created_by: e.target.value })}
+              />
             </div>
             {editing && (
               <div className="space-y-2">
                 <Label>Status</Label>
                 <Select
                   value={form.status}
-                  onValueChange={(v) => setForm({ ...form, status: v as 'unused' | 'used' })}
+                  onValueChange={(v) => setForm({ ...form, status: v as 'unused' | 'used' | 'sold' })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -254,6 +242,7 @@ export default function GmailsPage() {
                   <SelectContent>
                     <SelectItem value="unused">Unused</SelectItem>
                     <SelectItem value="used">Used</SelectItem>
+                    <SelectItem value="sold">Sold</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

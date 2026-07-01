@@ -12,11 +12,10 @@ export interface Gmail {
   id: string
   gmail_address: string
   password: string
-  recovery_email?: string
-  recovery_phone?: string
-  status: 'unused' | 'used'
+  status: 'unused' | 'used' | 'sold'
   notes?: string
   created_at: string
+  created_by?: string
   console_id?: string
   certificate_id?: string
 }
@@ -31,7 +30,7 @@ export interface BusinessCertificate {
   created_at: string
 }
 
-export type ConsoleStatus = 'approved' | 'in_review' | 'production' | 'rejected' | 'faulty'
+export type ConsoleStatus = 'approved' | 'in_review' | 'production' | 'rejected' | 'faulty' | 'sold'
 
 export interface ConsoleAccount {
   id: string
@@ -40,7 +39,6 @@ export interface ConsoleAccount {
   certificate_id: string
   status: ConsoleStatus
   notes?: string
-  created_at: string
 }
 
 export type ApplicationStatus = 'idea' | 'development' | 'internal_testing' | 'closed_testing' | 'open_testing' | 'under_review' | 'production' | 'suspended' | 'removed'
