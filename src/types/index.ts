@@ -31,7 +31,7 @@ export interface BusinessCertificate {
   created_at: string
 }
 
-export type ConsoleStatus = 'pending_payment' | 'pending_verification' | 'approved' | 'suspended' | 'closed' | 'rejected'
+export type ConsoleStatus = 'approved' | 'in_review' | 'production' | 'rejected' | 'faulty'
 
 export interface ConsoleAccount {
   id: string

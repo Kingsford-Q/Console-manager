@@ -47,14 +47,12 @@ export const statusToLabel = (status: string): string => {
 export const statusToColor = (status: string): string => {
   const colorMap: { [key: string]: string } = {
     approved: 'bg-green-100 text-green-800',
-    pending_payment: 'bg-yellow-100 text-yellow-800',
-    pending_verification: 'bg-blue-100 text-blue-800',
-    suspended: 'bg-red-100 text-red-800',
-    closed: 'bg-gray-100 text-gray-800',
+    in_review: 'bg-yellow-100 text-yellow-800',
+    production: 'bg-blue-100 text-blue-800',
     rejected: 'bg-red-100 text-red-800',
+    faulty: 'bg-orange-100 text-orange-800',
     used: 'bg-blue-100 text-blue-800',
     unused: 'bg-gray-100 text-gray-800',
-    production: 'bg-green-100 text-green-800',
     under_review: 'bg-yellow-100 text-yellow-800',
     removed: 'bg-red-100 text-red-800',
     suspended_app: 'bg-red-100 text-red-800',

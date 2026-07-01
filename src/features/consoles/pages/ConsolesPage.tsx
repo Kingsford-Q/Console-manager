@@ -44,19 +44,18 @@ import {
 import { formatDate, statusToLabel } from '@/utils/formatting'
 
 const CONSOLE_STATUSES: ConsoleStatus[] = [
-  'pending_payment',
-  'pending_verification',
   'approved',
-  'suspended',
-  'closed',
+  'in_review',
+  'production',
   'rejected',
+  'faulty',
 ]
 
 const emptyForm = {
   console_name: '',
   gmail_id: '',
   certificate_id: '',
-  status: 'pending_payment' as ConsoleStatus,
+  status: 'approved' as ConsoleStatus,
   notes: '',
 }
 
