@@ -8,6 +8,8 @@ interface AuthContextType {
   user: Profile | null
   loading: boolean
   signOut: () => Promise<void>
+  updateProfile: (updates: Partial<Profile>) => Promise<void>
+  updatePassword: (newPassword: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -67,8 +69,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }
 
+  const updateProfile = async (updates: Partial<Profile>) => {
+    if (!user) return
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id)
+
+      if (error) throw error
+
+      setUser({ ...user, ...updates })
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      throw error
+    }
+  }
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      })
+
+      if (error) throw error
+    } catch (error) {
+      console.error('Error updating password:', error)
+      throw error
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ session, user, loading, signOut }}>
+    <AuthContext.Provider value={{ session, user, loading, signOut, updateProfile, updatePassword }}>
       {children}
     </AuthContext.Provider>
   )

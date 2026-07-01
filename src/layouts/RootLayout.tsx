@@ -1,6 +1,6 @@
 import { useAuth } from '@/features/auth/context'
 import { Button } from '@/components/ui/button'
-import { LogOut, LayoutDashboard, Mail, Award, Monitor, FileText, Lightbulb } from 'lucide-react'
+import { LogOut, LayoutDashboard, Mail, Award, Monitor, FileText, Lightbulb, Settings } from 'lucide-react'
 import { useState } from 'react'
 import DashboardPage from '@/features/dashboard/pages/DashboardPage'
 import GmailsPage from '@/features/gmails/pages/GmailsPage'
@@ -8,6 +8,7 @@ import CertificatesPage from '@/features/certificates/pages/CertificatesPage'
 import ConsolesPage from '@/features/consoles/pages/ConsolesPage'
 import ApplicationsPage from '@/features/applications/pages/ApplicationsPage'
 import AppIdeasPage from '@/features/ideas/pages/AppIdeasPage'
+import SettingsPage from '@/features/settings/pages/SettingsPage'
 import { cn } from '@/lib/utils'
 
 const navigationItems = [
@@ -17,6 +18,7 @@ const navigationItems = [
   { id: 'consoles', label: 'Console Accounts', icon: Monitor },
   { id: 'applications', label: 'Applications', icon: FileText },
   { id: 'ideas', label: 'App Ideas', icon: Lightbulb },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ] as const
 
 type PageId = (typeof navigationItems)[number]['id']
@@ -28,6 +30,7 @@ const pageComponents: Record<PageId, React.ComponentType> = {
   consoles: ConsolesPage,
   applications: ApplicationsPage,
   ideas: AppIdeasPage,
+  settings: SettingsPage,
 }
 
 export default function RootLayout() {

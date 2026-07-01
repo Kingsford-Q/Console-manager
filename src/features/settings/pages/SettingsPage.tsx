@@ -1,0 +1,176 @@
+import { useState } from 'react'
+import { useAuth } from '@/features/auth/context'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
+
+export default function SettingsPage() {
+  const { user, updateProfile, updatePassword } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Profile form state
+  const [fullName, setFullName] = useState(user?.full_name || '')
+  const [email, setEmail] = useState(user?.email || '')
+
+  // Password form state
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user) return
+
+    setIsLoading(true)
+    try {
+      await updateProfile({
+        full_name: fullName,
+        email: email,
+      })
+      toast.success('Profile updated successfully')
+    } catch (error) {
+      toast.error('Failed to update profile')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match')
+      return
+    }
+
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      await updatePassword(newPassword)
+      toast.success('Password updated successfully')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (error) {
+      toast.error('Failed to update password')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold">Settings</h3>
+        <p className="text-sm text-muted-foreground">Manage your account settings and preferences</p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Profile Settings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Profile Information</CardTitle>
+            <CardDescription>Update your personal information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleProfileUpdate} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter your full name"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  disabled={isLoading}
+                />
+              </div>
+              <Button type="submit" disabled={isLoading} className="w-full">
+                {isLoading ? 'Updating...' : 'Update Profile'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Password Settings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Change Password</CardTitle>
+            <CardDescription>Update your password to keep your account secure</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordUpdate} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                  disabled={isLoading}
+                />
+              </div>
+              <Button type="submit" disabled={isLoading} variant="outline" className="w-full">
+                {isLoading ? 'Updating...' : 'Change Password'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Account Info Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Account Information</CardTitle>
+          <CardDescription>Your current account details</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Role:</span>
+              <span className="font-medium">{user?.role?.replace('_', ' ')}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Account ID:</span>
+              <span className="font-medium font-mono">{user?.id}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Member Since:</span>
+              <span className="font-medium">
+                {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
