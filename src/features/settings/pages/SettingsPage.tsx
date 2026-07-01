@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 
 export default function SettingsPage() {
-  const { user, updateProfile, updatePassword } = useAuth()
+  const { user, session, updateProfile, updatePassword, updateEmail } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   // Profile form state
   const [fullName, setFullName] = useState(user?.full_name || '')
-  const [email, setEmail] = useState(user?.email || '')
+  const [email, setEmail] = useState(session?.user?.email || '')
 
   // Password form state
   const [newPassword, setNewPassword] = useState('')
@@ -26,11 +26,26 @@ export default function SettingsPage() {
     try {
       await updateProfile({
         full_name: fullName,
-        email: email,
       })
       toast.success('Profile updated successfully')
     } catch (error) {
       toast.error('Failed to update profile')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleEmailUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user) return
+
+    setIsLoading(true)
+    try {
+      await updateEmail(email)
+      toast.success('Email updated successfully. Please check your new email for verification.')
+    } catch (error) {
+      toast.error('Failed to update email')
       console.error(error)
     } finally {
       setIsLoading(false)
@@ -78,7 +93,7 @@ export default function SettingsPage() {
             <CardTitle>Profile Information</CardTitle>
             <CardDescription>Update your personal information</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <form onSubmit={handleProfileUpdate} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name</Label>
@@ -90,21 +105,30 @@ export default function SettingsPage() {
                   disabled={isLoading}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  disabled={isLoading}
-                />
-              </div>
               <Button type="submit" disabled={isLoading} className="w-full">
-                {isLoading ? 'Updating...' : 'Update Profile'}
+                {isLoading ? 'Updating...' : 'Update Name'}
               </Button>
             </form>
+
+            <div className="border-t pt-4">
+              <form onSubmit={handleEmailUpdate} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-muted-foreground">You'll need to verify your new email address</p>
+                </div>
+                <Button type="submit" disabled={isLoading} variant="outline" className="w-full">
+                  {isLoading ? 'Updating...' : 'Update Email'}
+                </Button>
+              </form>
+            </div>
           </CardContent>
         </Card>
 
