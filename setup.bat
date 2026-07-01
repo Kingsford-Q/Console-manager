@@ -31,6 +31,7 @@ echo   npm run type-check   - Check TypeScript types
 echo   npm run lint         - Run ESLint
 echo.
 
+
 echo Test Credentials (after setup):
 echo   Email: admin1@example.com
 echo   Password: Admin@12345
