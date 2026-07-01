@@ -8,7 +8,7 @@ export const certificateService = {
 
     if (search) {
       query = query.or(
-        `business_name.ilike.%${search}%,certificate_number.ilike.%${search}%`
+        `business_name.ilike.%${search}%,duns_number.ilike.%${search}%`
       )
     }
 

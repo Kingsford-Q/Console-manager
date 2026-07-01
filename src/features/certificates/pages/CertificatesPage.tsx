@@ -36,9 +36,8 @@ import { certificateService } from '@/services/certificateService'
 
 const emptyForm = {
   business_name: '',
-  country: '',
-  registration_number: '',
-  certificate_number: '',
+  city: '',
+  duns_number: '',
   notes: '',
 }
 
@@ -87,9 +86,8 @@ export default function CertificatesPage() {
     setEditing(cert)
     setForm({
       business_name: cert.business_name,
-      country: cert.country,
-      registration_number: cert.registration_number,
-      certificate_number: cert.certificate_number,
+      city: cert.city,
+      duns_number: cert.duns_number,
       notes: cert.notes ?? '',
     })
     setDialogOpen(true)
@@ -156,9 +154,8 @@ export default function CertificatesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Business Name</TableHead>
-                <TableHead>Country</TableHead>
-                <TableHead>Registration #</TableHead>
-                <TableHead>Certificate #</TableHead>
+                <TableHead>City</TableHead>
+                <TableHead>DUNS #</TableHead>
                 <TableHead>Usage</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
@@ -168,9 +165,8 @@ export default function CertificatesPage() {
               {certificates.map((cert) => (
                 <TableRow key={cert.id}>
                   <TableCell className="font-medium">{cert.business_name}</TableCell>
-                  <TableCell>{cert.country}</TableCell>
-                  <TableCell className="text-muted-foreground">{cert.registration_number}</TableCell>
-                  <TableCell className="text-muted-foreground">{cert.certificate_number}</TableCell>
+                  <TableCell>{cert.city}</TableCell>
+                  <TableCell className="text-muted-foreground">{cert.duns_number}</TableCell>
                   <TableCell>
                     <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                       {usageCounts[cert.id] || 0} console{usageCounts[cert.id] !== 1 ? 's' : ''}
@@ -211,33 +207,23 @@ export default function CertificatesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="country">Country</Label>
+                <Label htmlFor="city">City</Label>
                 <Input
-                  id="country"
-                  value={form.country}
-                  onChange={(e) => setForm({ ...form, country: e.target.value })}
+                  id="city"
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="registration_number">Registration Number</Label>
+                <Label htmlFor="duns_number">DUNS Number</Label>
                 <Input
-                  id="registration_number"
-                  value={form.registration_number}
-                  onChange={(e) => setForm({ ...form, registration_number: e.target.value })}
+                  id="duns_number"
+                  value={form.duns_number}
+                  onChange={(e) => setForm({ ...form, duns_number: e.target.value })}
                   required
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="certificate_number">Certificate Number</Label>
-              <Input
-                id="certificate_number"
-                value={form.certificate_number}
-                onChange={(e) => setForm({ ...form, certificate_number: e.target.value })}
-                required
-                disabled={!!editing}
-              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
