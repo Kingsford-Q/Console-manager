@@ -44,8 +44,12 @@ export default function SettingsPage() {
     try {
       await updateEmail(email)
       toast.success('Email updated successfully. Please check your new email for verification.')
-    } catch (error) {
-      toast.error('Failed to update email')
+    } catch (error: any) {
+      if (error?.message?.includes('rate limit') || error?.status === 429) {
+        toast.error('Too many email change attempts. Please wait a few minutes before trying again.')
+      } else {
+        toast.error('Failed to update email')
+      }
       console.error(error)
     } finally {
       setIsLoading(false)
