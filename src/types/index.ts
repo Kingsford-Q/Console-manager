@@ -24,9 +24,8 @@ export interface Gmail {
 export interface BusinessCertificate {
   id: string
   business_name: string
-  country: string
-  registration_number: string
-  certificate_number: string
+  city: string
+  duns_number: string
   notes?: string
   created_at: string
 }

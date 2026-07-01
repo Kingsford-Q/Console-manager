@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Award, Pencil, Trash2 } from 'lucide-react'
 import {
@@ -32,6 +32,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { formatDate } from '@/utils/formatting'
+import { certificateService } from '@/services/certificateService'
 
 const emptyForm = {
   business_name: '',
@@ -47,11 +48,34 @@ export default function CertificatesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [editing, setEditing] = useState<BusinessCertificate | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const [usageCounts, setUsageCounts] = useState<Record<string, number>>({})
 
   const { data: certificates, isLoading, error } = useCertificates(search || undefined)
   const createCertificate = useCreateCertificate()
   const updateCertificate = useUpdateCertificate()
   const deleteCertificate = useDeleteCertificate()
+
+  // Fetch usage counts for all certificates
+  useEffect(() => {
+    if (certificates?.length) {
+      const fetchUsageCounts = async () => {
+        const counts: Record<string, number> = {}
+        await Promise.all(
+          certificates.map(async (cert) => {
+            try {
+              const count = await certificateService.getUsageCount(cert.id)
+              counts[cert.id] = count
+            } catch (error) {
+              console.error(`Failed to fetch usage count for ${cert.id}:`, error)
+              counts[cert.id] = 0
+            }
+          })
+        )
+        setUsageCounts(counts)
+      }
+      fetchUsageCounts()
+    }
+  }, [certificates])
 
   const openCreate = () => {
     setEditing(null)
@@ -135,6 +159,7 @@ export default function CertificatesPage() {
                 <TableHead>Country</TableHead>
                 <TableHead>Registration #</TableHead>
                 <TableHead>Certificate #</TableHead>
+                <TableHead>Usage</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
@@ -146,6 +171,11 @@ export default function CertificatesPage() {
                   <TableCell>{cert.country}</TableCell>
                   <TableCell className="text-muted-foreground">{cert.registration_number}</TableCell>
                   <TableCell className="text-muted-foreground">{cert.certificate_number}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                      {usageCounts[cert.id] || 0} console{usageCounts[cert.id] !== 1 ? 's' : ''}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{formatDate(cert.created_at)}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
