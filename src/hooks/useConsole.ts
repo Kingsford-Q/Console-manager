@@ -74,3 +74,10 @@ export const useConsoleStats = () => {
     queryFn: () => consoleService.countByStatus(),
   })
 }
+
+export const useConsoleReviewStats = () => {
+  return useQuery({
+    queryKey: ['console-review-stats'],
+    queryFn: () => consoleService.getReviewStats(),
+  })
+}

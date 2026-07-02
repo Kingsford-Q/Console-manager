@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { Application } from '@/types'
+import { Application, ReviewTimeStats } from '@/types'
 
 export const applicationService = {
   // Get all applications
@@ -115,5 +115,38 @@ export const applicationService = {
     })
 
     return counts
+  },
+
+  // Days spent in review (under_review -> production), plus apps currently in review
+  async getReviewStats(): Promise<ReviewTimeStats> {
+    const { data, error } = await supabase
+      .from('applications')
+      .select('status, review_started_at, days_in_review')
+
+    if (error) throw error
+
+    const completed = data.filter((row: any) => row.days_in_review !== null)
+    const avgDaysInReview = completed.length
+      ? completed.reduce((sum: number, row: any) => sum + row.days_in_review, 0) / completed.length
+      : null
+
+    const inReview = data.filter(
+      (row: any) => row.status === 'under_review' && row.review_started_at
+    )
+    const now = Date.now()
+    const avgDaysInReviewSoFar = inReview.length
+      ? inReview.reduce(
+          (sum: number, row: any) =>
+            sum + (now - new Date(row.review_started_at).getTime()) / 86400000,
+          0
+        ) / inReview.length
+      : null
+
+    return {
+      avgDaysInReview,
+      completedCount: completed.length,
+      inReviewCount: inReview.length,
+      avgDaysInReviewSoFar,
+    }
   },
 }

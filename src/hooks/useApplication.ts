@@ -74,3 +74,10 @@ export const useApplicationStats = () => {
     queryFn: () => applicationService.countByStatus(),
   })
 }
+
+export const useApplicationReviewStats = () => {
+  return useQuery({
+    queryKey: ['application-review-stats'],
+    queryFn: () => applicationService.getReviewStats(),
+  })
+}

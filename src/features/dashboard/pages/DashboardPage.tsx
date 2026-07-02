@@ -1,11 +1,13 @@
 import { useAuth } from '@/features/auth/context'
 import { useGmails } from '@/hooks/useGmail'
 import { useCertificates } from '@/hooks/useCertificate'
-import { useConsoleStats } from '@/hooks/useConsole'
-import { useApplicationStats, useApplications } from '@/hooks/useApplication'
+import { useConsoleStats, useConsoleReviewStats } from '@/hooks/useConsole'
+import { useApplicationStats, useApplications, useApplicationReviewStats } from '@/hooks/useApplication'
 import { useAppIdeaStats } from '@/hooks/useAppIdea'
 import { useRecentActivity } from '@/hooks/useActivity'
 import { usePaymentMethods } from '@/hooks/usePayment'
+import { useAppSalesAnalytics } from '@/hooks/useSales'
+import { useRealtimeDashboard } from '@/hooks/useRealtimeDashboard'
 import { StatCard } from '@/components/shared/stat-card'
 import { LoadingState } from '@/components/shared/loading-state'
 import { StatusBadge } from '@/components/shared/status-badge'
@@ -19,7 +21,18 @@ import {
   CreditCard,
   Activity,
   Rocket,
+  Timer,
+  TrendingUp,
 } from 'lucide-react'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { formatDateTime, statusToLabel } from '@/utils/formatting'
 import { Application, ConsoleAccount } from '@/types'
 
@@ -27,7 +40,14 @@ type ApplicationWithConsole = Application & {
   console?: Pick<ConsoleAccount, 'id' | 'console_name' | 'status'>
 }
 
+const formatDays = (value: number | null): string => {
+  if (value === null) return '—'
+  return `${value.toFixed(1)}d`
+}
+
 export default function DashboardPage() {
+  useRealtimeDashboard()
+
   const { user } = useAuth()
   const { data: gmails, isLoading: gmailsLoading } = useGmails()
   const { data: certificates, isLoading: certsLoading } = useCertificates()
@@ -37,6 +57,9 @@ export default function DashboardPage() {
   const { data: activity, isLoading: activityLoading } = useRecentActivity(8)
   const { data: paymentMethods, isLoading: paymentsLoading } = usePaymentMethods()
   const { data: applications, isLoading: applicationsLoading } = useApplications()
+  const { data: consoleReviewStats, isLoading: consoleReviewLoading } = useConsoleReviewStats()
+  const { data: appReviewStats, isLoading: appReviewLoading } = useApplicationReviewStats()
+  const { data: salesAnalytics, isLoading: salesLoading } = useAppSalesAnalytics()
 
   const isLoading =
     gmailsLoading ||
@@ -45,7 +68,10 @@ export default function DashboardPage() {
     appLoading ||
     ideaLoading ||
     paymentsLoading ||
-    applicationsLoading
+    applicationsLoading ||
+    consoleReviewLoading ||
+    appReviewLoading ||
+    salesLoading
 
   const usedGmails = gmails?.filter((g) => g.status === 'used').length ?? 0
   const totalGmails = gmails?.length ?? 0
@@ -118,6 +144,22 @@ export default function DashboardPage() {
           iconClassName="bg-teal-500/10"
           iconColorClassName="text-teal-600"
         />
+        <StatCard
+          title="Apps Sold This Week"
+          value={salesAnalytics?.soldThisWeek ?? 0}
+          icon={TrendingUp}
+          description={`${salesAnalytics?.soldThisMonth ?? 0} this month · ${salesAnalytics?.soldAllTime ?? 0} all-time`}
+          iconClassName="bg-fuchsia-500/10"
+          iconColorClassName="text-fuchsia-600"
+        />
+        <StatCard
+          title="Avg. Review Time"
+          value={formatDays(appReviewStats?.avgDaysInReview ?? null)}
+          icon={Timer}
+          description={`Apps · ${appReviewStats?.completedCount ?? 0} completed reviews`}
+          iconClassName="bg-cyan-500/10"
+          iconColorClassName="text-cyan-600"
+        />
       </div>
 
       <div className="grid items-start gap-6 lg:grid-cols-2">
@@ -163,6 +205,104 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Timer className="h-4 w-4 text-muted-foreground" />
+            <CardTitle>Review Time Analytics</CardTitle>
+          </div>
+          <CardDescription>
+            Days spent in review, tracked automatically from status changes
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="space-y-3 rounded-lg border p-4">
+              <p className="text-sm font-medium text-muted-foreground">
+                Console Accounts <span className="text-xs">(in_review → approved)</span>
+              </p>
+              <p className="text-3xl font-bold tracking-tight">
+                {formatDays(consoleReviewStats?.avgDaysInReview ?? null)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Avg. across {consoleReviewStats?.completedCount ?? 0} completed reviews
+              </p>
+              {(consoleReviewStats?.inReviewCount ?? 0) > 0 && (
+                <p className="text-xs text-amber-600">
+                  {consoleReviewStats?.inReviewCount} currently in review · avg{' '}
+                  {formatDays(consoleReviewStats?.avgDaysInReviewSoFar ?? null)} so far
+                </p>
+              )}
+            </div>
+            <div className="space-y-3 rounded-lg border p-4">
+              <p className="text-sm font-medium text-muted-foreground">
+                Applications <span className="text-xs">(under_review → production)</span>
+              </p>
+              <p className="text-3xl font-bold tracking-tight">
+                {formatDays(appReviewStats?.avgDaysInReview ?? null)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Avg. across {appReviewStats?.completedCount ?? 0} completed reviews
+              </p>
+              {(appReviewStats?.inReviewCount ?? 0) > 0 && (
+                <p className="text-xs text-amber-600">
+                  {appReviewStats?.inReviewCount} currently in review · avg{' '}
+                  {formatDays(appReviewStats?.avgDaysInReviewSoFar ?? null)} so far
+                </p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle>App Sales Analytics</CardTitle>
+          </div>
+          <CardDescription>
+            An app counts as sold the moment its console is marked sold
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div>
+              <p className="mb-2 text-sm font-medium">This Month, by Week</p>
+              {!salesAnalytics?.weekly.some((w) => w.count > 0) ? (
+                <p className="text-sm text-muted-foreground">No apps sold this month yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={salesAnalytics?.weekly}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
+                    <XAxis dataKey="label" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis fontSize={12} allowDecimals={false} tickLine={false} axisLine={false} width={28} />
+                    <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} />
+                    <Bar dataKey="count" name="Apps Sold" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-medium">Last 6 Months</p>
+              {!salesAnalytics?.monthly.some((m) => m.count > 0) ? (
+                <p className="text-sm text-muted-foreground">No apps sold in this period yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={salesAnalytics?.monthly}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
+                    <XAxis dataKey="label" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis fontSize={12} allowDecimals={false} tickLine={false} axisLine={false} width={28} />
+                    <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} />
+                    <Bar dataKey="count" name="Apps Sold" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

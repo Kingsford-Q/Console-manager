@@ -51,6 +51,9 @@ export interface ConsoleAccount {
   certificate_id: string
   status: ConsoleStatus
   notes?: string
+  review_started_at?: string
+  days_in_review?: number
+  sold_at?: string
 }
 
 export type ApplicationStatus = 'idea' | 'development' | 'internal_testing' | 'closed_testing' | 'open_testing' | 'under_review' | 'production' | 'suspended' | 'removed'
@@ -70,6 +73,9 @@ export interface Application {
   privacy_policy_url?: string
   screenshots?: string[]
   notes?: string
+  review_started_at?: string
+  days_in_review?: number
+  sold_at?: string
   created_at: string
   updated_at: string
 }
@@ -109,6 +115,33 @@ export interface DashboardStats {
   removedApps: number
   draftApps: number
   totalAppIdeas: number
+}
+
+// Review-time analytics (accounts & apps)
+export interface ReviewTimeStats {
+  avgDaysInReview: number | null
+  completedCount: number
+  inReviewCount: number
+  avgDaysInReviewSoFar: number | null
+}
+
+// App sales analytics (an app counts as "sold" when its console is sold)
+export interface WeekSalesBucket {
+  label: string
+  count: number
+}
+
+export interface MonthSalesBucket {
+  label: string
+  count: number
+}
+
+export interface SalesAnalytics {
+  soldThisWeek: number
+  soldThisMonth: number
+  soldAllTime: number
+  weekly: WeekSalesBucket[]
+  monthly: MonthSalesBucket[]
 }
 
 export interface ActivityLog {
