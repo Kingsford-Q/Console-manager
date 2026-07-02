@@ -120,21 +120,21 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid items-start gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Console Status</CardTitle>
+            <CardTitle>Console Status</CardTitle>
             <CardDescription>Breakdown by approval state</CardDescription>
           </CardHeader>
           <CardContent>
             {totalConsoles === 0 ? (
               <p className="text-sm text-muted-foreground">No console accounts yet.</p>
             ) : (
-              <div className="space-y-3">
+              <div className="divide-y">
                 {Object.entries(consoleStats ?? {}).map(([status, count]) => (
-                  <div key={status} className="flex items-center justify-between">
+                  <div key={status} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
                     <StatusBadge status={status} />
-                    <span className="text-sm font-medium">{count}</span>
+                    <span className="text-sm font-semibold">{count}</span>
                   </div>
                 ))}
               </div>
@@ -144,18 +144,18 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Application Status</CardTitle>
+            <CardTitle>Application Status</CardTitle>
             <CardDescription>Lifecycle distribution</CardDescription>
           </CardHeader>
           <CardContent>
             {totalApps === 0 ? (
               <p className="text-sm text-muted-foreground">No applications yet.</p>
             ) : (
-              <div className="space-y-3">
+              <div className="divide-y">
                 {Object.entries(appStats ?? {}).map(([status, count]) => (
-                  <div key={status} className="flex items-center justify-between">
+                  <div key={status} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
                     <StatusBadge status={status} />
-                    <span className="text-sm font-medium">{count}</span>
+                    <span className="text-sm font-semibold">{count}</span>
                   </div>
                 ))}
               </div>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Rocket className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-base">Consoles &amp; Apps in Review or Production</CardTitle>
+            <CardTitle>Consoles &amp; Apps in Review or Production</CardTitle>
           </div>
           <CardDescription>
             Live view of every console and its app once the app reaches review or production
@@ -222,7 +222,7 @@ export default function DashboardPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-base">Recent Activity</CardTitle>
+            <CardTitle>Recent Activity</CardTitle>
           </div>
           <CardDescription>Latest actions across the platform</CardDescription>
         </CardHeader>

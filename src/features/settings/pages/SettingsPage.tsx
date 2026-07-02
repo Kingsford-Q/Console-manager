@@ -92,10 +92,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold">Settings</h3>
-        <p className="text-sm text-muted-foreground">Manage your account settings and preferences</p>
-      </div>
+      <p className="text-muted-foreground">Manage your account settings and preferences</p>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Profile Settings Card */}
@@ -190,17 +187,17 @@ export default function SettingsPage() {
           <CardDescription>Your current account details</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Role:</span>
+          <div className="divide-y text-sm">
+            <div className="flex flex-col gap-0.5 py-2.5 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-muted-foreground">Role</span>
               <span className="font-medium">{user?.role?.replace('_', ' ')}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Account ID:</span>
-              <span className="font-medium font-mono">{user?.id}</span>
+            <div className="flex flex-col gap-0.5 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-muted-foreground">Account ID</span>
+              <span className="break-all font-mono text-xs font-medium sm:text-sm">{user?.id}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Member Since:</span>
+            <div className="flex flex-col gap-0.5 py-2.5 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-muted-foreground">Member Since</span>
               <span className="font-medium">
                 {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
               </span>

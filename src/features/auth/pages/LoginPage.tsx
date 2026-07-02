@@ -49,7 +49,7 @@ export default function LoginPage() {
 
         <Card>
           <CardHeader className="pb-4">
-            <CardTitle className="text-base">Welcome back</CardTitle>
+            <CardTitle>Welcome back</CardTitle>
             <CardDescription>Enter your credentials to continue</CardDescription>
           </CardHeader>
           <CardContent>
