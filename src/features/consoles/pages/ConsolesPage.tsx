@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Monitor, Pencil, Trash2 } from 'lucide-react'
+import { Monitor, Pencil, Trash2, History } from 'lucide-react'
 import {
   useConsoles,
   useCreateConsole,
   useUpdateConsole,
   useDeleteConsole,
+  useConsoleStatusHistory,
 } from '@/hooks/useConsole'
 import { useGmails } from '@/hooks/useGmail'
 import { useCertificates } from '@/hooks/useCertificate'
@@ -15,6 +16,7 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { LoadingState } from '@/components/shared/loading-state'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
+import { StatusHistoryDialog } from '@/components/shared/status-history-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -70,9 +72,11 @@ export default function ConsolesPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [historyId, setHistoryId] = useState<string | null>(null)
   const [editing, setEditing] = useState<ConsoleWithRelations | null>(null)
   const [form, setForm] = useState(emptyForm)
 
+  const { data: history, isLoading: historyLoading } = useConsoleStatusHistory(historyId ?? '')
   const { data: consoles, isLoading, error } = useConsoles(
     search || undefined,
     statusFilter === 'all' ? undefined : statusFilter
@@ -178,7 +182,7 @@ export default function ConsolesPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Days in Review</TableHead>
                 <TableHead>Sold</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="w-[130px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -212,6 +216,14 @@ export default function ConsolesPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setHistoryId(console.id)}
+                        title="View status history"
+                      >
+                        <History className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(console)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -328,6 +340,14 @@ export default function ConsolesPage() {
         description="This will delete the console account and reset the linked Gmail to unused."
         onConfirm={handleDelete}
         loading={deleteConsole.isPending}
+      />
+
+      <StatusHistoryDialog
+        open={!!historyId}
+        onOpenChange={(open) => !open && setHistoryId(null)}
+        title="Console Status History"
+        entries={history}
+        isLoading={historyLoading}
       />
     </div>
   )

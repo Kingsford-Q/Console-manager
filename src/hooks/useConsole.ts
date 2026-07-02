@@ -81,3 +81,11 @@ export const useConsoleReviewStats = () => {
     queryFn: () => consoleService.getReviewStats(),
   })
 }
+
+export const useConsoleStatusHistory = (consoleId: string) => {
+  return useQuery({
+    queryKey: ['console-status-history', consoleId],
+    queryFn: () => consoleService.getStatusHistory(consoleId),
+    enabled: !!consoleId,
+  })
+}

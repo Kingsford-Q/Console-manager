@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { FileText, Pencil, Trash2, ShieldCheck } from 'lucide-react'
+import { FileText, Pencil, Trash2, ShieldCheck, History } from 'lucide-react'
 import {
   useApplications,
   useCreateApplication,
   useUpdateApplication,
   useDeleteApplication,
+  useApplicationStatusHistory,
 } from '@/hooks/useApplication'
 import { useConsoles } from '@/hooks/useConsole'
 import { Application, ApplicationStatus } from '@/types'
@@ -14,6 +15,7 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { LoadingState } from '@/components/shared/loading-state'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
+import { StatusHistoryDialog } from '@/components/shared/status-history-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -80,9 +82,11 @@ export default function ApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [historyId, setHistoryId] = useState<string | null>(null)
   const [editing, setEditing] = useState<ApplicationWithRelations | null>(null)
   const [form, setForm] = useState(emptyForm)
 
+  const { data: history, isLoading: historyLoading } = useApplicationStatusHistory(historyId ?? '')
   const { data: applications, isLoading, error } = useApplications(
     search || undefined,
     statusFilter === 'all' ? undefined : statusFilter
@@ -187,7 +191,7 @@ export default function ApplicationsPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Days in Review</TableHead>
                 <TableHead>Version</TableHead>
-                <TableHead className="w-[130px]">Actions</TableHead>
+                <TableHead className="w-[160px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -223,6 +227,14 @@ export default function ApplicationsPage() {
                           </a>
                         </Button>
                       )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setHistoryId(app.id)}
+                        title="View status history"
+                      >
+                        <History className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(app)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -381,6 +393,14 @@ export default function ApplicationsPage() {
         description="This action cannot be undone. The application record will be permanently removed."
         onConfirm={handleDelete}
         loading={deleteApplication.isPending}
+      />
+
+      <StatusHistoryDialog
+        open={!!historyId}
+        onOpenChange={(open) => !open && setHistoryId(null)}
+        title="Application Status History"
+        entries={history}
+        isLoading={historyLoading}
       />
     </div>
   )

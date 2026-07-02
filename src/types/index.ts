@@ -144,6 +144,26 @@ export interface SalesAnalytics {
   monthly: MonthSalesBucket[]
 }
 
+export interface ConsoleStatusHistoryEntry {
+  id: string
+  console_id: string
+  from_status: ConsoleStatus
+  to_status: ConsoleStatus
+  started_at: string
+  changed_at: string
+  duration_days: number
+}
+
+export interface ApplicationStatusHistoryEntry {
+  id: string
+  application_id: string
+  from_status: ApplicationStatus
+  to_status: ApplicationStatus
+  started_at: string
+  changed_at: string
+  duration_days: number
+}
+
 export interface ActivityLog {
   id: string
   user_id: string

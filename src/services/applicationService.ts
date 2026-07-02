@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { Application, ReviewTimeStats } from '@/types'
+import { Application, ApplicationStatusHistoryEntry, ReviewTimeStats } from '@/types'
 
 export const applicationService = {
   // Get all applications
@@ -148,5 +148,17 @@ export const applicationService = {
       inReviewCount: inReview.length,
       avgDaysInReviewSoFar,
     }
+  },
+
+  // Full status-change timeline for a single application
+  async getStatusHistory(applicationId: string) {
+    const { data, error } = await supabase
+      .from('application_status_history')
+      .select('*')
+      .eq('application_id', applicationId)
+      .order('changed_at', { ascending: false })
+
+    if (error) throw error
+    return data as ApplicationStatusHistoryEntry[]
   },
 }

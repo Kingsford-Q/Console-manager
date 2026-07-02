@@ -81,3 +81,11 @@ export const useApplicationReviewStats = () => {
     queryFn: () => applicationService.getReviewStats(),
   })
 }
+
+export const useApplicationStatusHistory = (applicationId: string) => {
+  return useQuery({
+    queryKey: ['application-status-history', applicationId],
+    queryFn: () => applicationService.getStatusHistory(applicationId),
+    enabled: !!applicationId,
+  })
+}

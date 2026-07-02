@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { ConsoleAccount, ReviewTimeStats } from '@/types'
+import { ConsoleAccount, ConsoleStatusHistoryEntry, ReviewTimeStats } from '@/types'
 
 export const consoleService = {
   // Get all console accounts
@@ -147,5 +147,17 @@ export const consoleService = {
       inReviewCount: inReview.length,
       avgDaysInReviewSoFar,
     }
+  },
+
+  // Full status-change timeline for a single console
+  async getStatusHistory(consoleId: string) {
+    const { data, error } = await supabase
+      .from('console_status_history')
+      .select('*')
+      .eq('console_id', consoleId)
+      .order('changed_at', { ascending: false })
+
+    if (error) throw error
+    return data as ConsoleStatusHistoryEntry[]
   },
 }
