@@ -2,9 +2,10 @@ import { useAuth } from '@/features/auth/context'
 import { useGmails } from '@/hooks/useGmail'
 import { useCertificates } from '@/hooks/useCertificate'
 import { useConsoleStats } from '@/hooks/useConsole'
-import { useApplicationStats } from '@/hooks/useApplication'
+import { useApplicationStats, useApplications } from '@/hooks/useApplication'
 import { useAppIdeaStats } from '@/hooks/useAppIdea'
 import { useRecentActivity } from '@/hooks/useActivity'
+import { usePaymentMethods } from '@/hooks/usePayment'
 import { StatCard } from '@/components/shared/stat-card'
 import { LoadingState } from '@/components/shared/loading-state'
 import { StatusBadge } from '@/components/shared/status-badge'
@@ -15,9 +16,16 @@ import {
   Award,
   FileText,
   Lightbulb,
+  CreditCard,
   Activity,
+  Rocket,
 } from 'lucide-react'
 import { formatDateTime, statusToLabel } from '@/utils/formatting'
+import { Application, ConsoleAccount } from '@/types'
+
+type ApplicationWithConsole = Application & {
+  console?: Pick<ConsoleAccount, 'id' | 'console_name' | 'status'>
+}
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -27,6 +35,8 @@ export default function DashboardPage() {
   const { data: appStats, isLoading: appLoading } = useApplicationStats()
   const { data: ideaStats, isLoading: ideaLoading } = useAppIdeaStats()
   const { data: activity, isLoading: activityLoading } = useRecentActivity(8)
+  const { data: paymentMethods, isLoading: paymentsLoading } = usePaymentMethods()
+  const { data: applications, isLoading: applicationsLoading } = useApplications()
 
   const isLoading =
     gmailsLoading || certsLoading || consoleLoading || appLoading || ideaLoading
@@ -38,6 +48,10 @@ export default function DashboardPage() {
   const totalApps = Object.values(appStats ?? {}).reduce((a, b) => a + b, 0)
   const productionApps = appStats?.production ?? 0
   const totalIdeas = Object.values(ideaStats ?? {}).reduce((a, b) => a + b, 0)
+
+  const liveApps = (applications as ApplicationWithConsole[] | undefined)
+    ?.filter((app) => app.status === 'under_review' || app.status === 'production')
+    .sort((a, b) => (a.status === b.status ? 0 : a.status === 'under_review' ? -1 : 1))
 
   if (isLoading) {
     return <LoadingState message="Loading dashboard..." />
@@ -51,34 +65,52 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard
           title="Gmail Accounts"
           value={totalGmails}
           icon={Mail}
           description={`${usedGmails} used · ${totalGmails - usedGmails} available`}
+          iconClassName="bg-blue-500/10"
+          iconColorClassName="text-blue-600"
         />
         <StatCard
           title="Certificates"
           value={certificates?.length ?? 0}
           icon={Award}
+          iconClassName="bg-violet-500/10"
+          iconColorClassName="text-violet-600"
         />
         <StatCard
           title="Console Accounts"
           value={totalConsoles}
           icon={Monitor}
           description={`${approvedConsoles} approved`}
+          iconClassName="bg-amber-500/10"
+          iconColorClassName="text-amber-600"
         />
         <StatCard
           title="Applications"
           value={totalApps}
           icon={FileText}
           description={`${productionApps} in production`}
+          iconClassName="bg-emerald-500/10"
+          iconColorClassName="text-emerald-600"
         />
         <StatCard
           title="App Ideas"
           value={totalIdeas}
           icon={Lightbulb}
+          iconClassName="bg-pink-500/10"
+          iconColorClassName="text-pink-600"
+        />
+        <StatCard
+          title="Payment Details"
+          value={paymentsLoading ? '—' : paymentMethods?.length ?? 0}
+          icon={CreditCard}
+          description="Saved cards on file"
+          iconClassName="bg-teal-500/10"
+          iconColorClassName="text-teal-600"
         />
       </div>
 
@@ -125,6 +157,60 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Rocket className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-base">Consoles &amp; Apps in Review or Production</CardTitle>
+          </div>
+          <CardDescription>
+            Live view of every console and its app once the app reaches review or production
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {applicationsLoading ? (
+            <LoadingState message="Loading console &amp; app status..." className="py-8" />
+          ) : !liveApps?.length ? (
+            <p className="text-sm text-muted-foreground">
+              No apps are currently in review or production.
+            </p>
+          ) : (
+            <div className="overflow-hidden rounded-lg border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr className="border-b text-left text-muted-foreground">
+                    <th className="px-4 py-2.5 font-medium">Console</th>
+                    <th className="px-4 py-2.5 font-medium">Console Status</th>
+                    <th className="px-4 py-2.5 font-medium">Application</th>
+                    <th className="px-4 py-2.5 font-medium">App Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {liveApps.map((app) => (
+                    <tr key={app.id} className="border-b last:border-0 hover:bg-muted/30">
+                      <td className="px-4 py-2.5 font-medium">
+                        {app.console?.console_name ?? '—'}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        {app.console?.status ? (
+                          <StatusBadge status={app.console.status} />
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td className="px-4 py-2.5">{app.app_name}</td>
+                      <td className="px-4 py-2.5">
+                        <StatusBadge status={app.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

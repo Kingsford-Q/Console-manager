@@ -8,6 +8,18 @@ export interface Profile {
   updated_at: string
 }
 
+export interface PaymentMethod {
+  id: string
+  card_number: string
+  card_holder_name: string
+  expiration: string
+  cvv: string
+  country: string
+  street: string
+  notes?: string
+  created_at: string
+}
+
 export interface Gmail {
   id: string
   gmail_address: string
@@ -55,6 +67,7 @@ export interface Application {
   release_date?: string
   status: ApplicationStatus
   app_icon_url?: string
+  privacy_policy_url?: string
   screenshots?: string[]
   notes?: string
   created_at: string

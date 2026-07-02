@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { FileText, Pencil, Trash2 } from 'lucide-react'
+import { FileText, Pencil, Trash2, ShieldCheck } from 'lucide-react'
 import {
   useApplications,
   useCreateApplication,
@@ -63,6 +63,7 @@ const emptyForm = {
   category: '',
   version: '1.0.0',
   status: 'idea' as ApplicationStatus,
+  privacy_policy_url: '',
   notes: '',
 }
 
@@ -108,6 +109,7 @@ export default function ApplicationsPage() {
       category: app.category,
       version: app.version,
       status: app.status,
+      privacy_policy_url: app.privacy_policy_url ?? '',
       notes: app.notes ?? '',
     })
     setDialogOpen(true)
@@ -184,7 +186,7 @@ export default function ApplicationsPage() {
                 <TableHead>Console</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Version</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="w-[130px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -201,6 +203,18 @@ export default function ApplicationsPage() {
                   <TableCell className="text-muted-foreground">{app.version}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
+                      {app.privacy_policy_url && (
+                        <Button variant="ghost" size="icon" asChild>
+                          <a
+                            href={app.privacy_policy_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="View privacy policy"
+                          >
+                            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                          </a>
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" onClick={() => openEdit(app)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -317,6 +331,16 @@ export default function ApplicationsPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="privacy_policy_url">Privacy Policy URL</Label>
+              <Input
+                id="privacy_policy_url"
+                type="url"
+                value={form.privacy_policy_url}
+                onChange={(e) => setForm({ ...form, privacy_policy_url: e.target.value })}
+                placeholder="https://example.com/privacy"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>

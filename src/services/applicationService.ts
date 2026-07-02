@@ -11,6 +11,7 @@ export const applicationService = {
         console:console_accounts(
           id,
           console_name,
+          status,
           gmail:gmails(id, gmail_address)
         )`
       )

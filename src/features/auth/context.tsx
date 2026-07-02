@@ -103,11 +103,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateEmail = async (newEmail: string) => {
     try {
-      const { error } = await supabase.auth.updateUser({
-        email: newEmail,
+      // Admins are trusted, known accounts managed directly by us, so we
+      // update auth.users via a SECURITY DEFINER RPC and skip Supabase's
+      // default "confirm from new email" flow, which depends on project
+      // SMTP being configured and previously left this stuck/unconfirmed.
+      const { error } = await supabase.rpc('admin_update_email', {
+        new_email: newEmail,
       })
 
       if (error) throw error
+
+      // The current session's JWT still has the old email claim until we
+      // refresh it, so pull a new session/user reflecting the change.
+      const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession()
+      if (refreshError) throw refreshError
+      setSession(refreshed.session)
     } catch (error) {
       console.error('Error updating email:', error)
       throw error

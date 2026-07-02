@@ -40,15 +40,22 @@ export default function SettingsPage() {
     e.preventDefault()
     if (!user) return
 
+    if (email === session?.user?.email) {
+      toast.error('Enter a different email address')
+      return
+    }
+
     setIsLoading(true)
     try {
       await updateEmail(email)
-      toast.success('Email updated successfully. Please check your new email for verification.')
+      toast.success('Email updated successfully. Use it next time you sign in.')
     } catch (error: any) {
       if (error?.message?.includes('rate limit') || error?.status === 429) {
         toast.error('Too many email change attempts. Please wait a few minutes before trying again.')
+      } else if (error?.message?.includes('already in use') || error?.code === '23505') {
+        toast.error('That email address is already in use')
       } else {
-        toast.error('Failed to update email')
+        toast.error(error?.message || 'Failed to update email')
       }
       console.error(error)
     } finally {
@@ -126,7 +133,9 @@ export default function SettingsPage() {
                     placeholder="Enter your email"
                     disabled={isLoading}
                   />
-                  <p className="text-xs text-muted-foreground">You'll need to verify your new email address</p>
+                  <p className="text-xs text-muted-foreground">
+                    Takes effect immediately — use it the next time you sign in
+                  </p>
                 </div>
                 <Button type="submit" disabled={isLoading} variant="outline" className="w-full">
                   {isLoading ? 'Updating...' : 'Update Email'}
