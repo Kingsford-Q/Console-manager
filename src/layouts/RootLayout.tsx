@@ -1,6 +1,18 @@
 import { useAuth } from '@/features/auth/context'
 import { Button } from '@/components/ui/button'
-import { LogOut, LayoutDashboard, Mail, Award, Monitor, FileText, Lightbulb, CreditCard, Settings } from 'lucide-react'
+import {
+  LogOut,
+  LayoutDashboard,
+  Mail,
+  Award,
+  Monitor,
+  FileText,
+  Lightbulb,
+  CreditCard,
+  Settings,
+  Menu,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 import DashboardPage from '@/features/dashboard/pages/DashboardPage'
 import GmailsPage from '@/features/gmails/pages/GmailsPage'
@@ -39,21 +51,49 @@ const pageComponents: Record<PageId, React.ComponentType> = {
 export default function RootLayout() {
   const { user, signOut } = useAuth()
   const [activePage, setActivePage] = useState<PageId>('dashboard')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const ActiveComponent = pageComponents[activePage]
   const activeLabel = navigationItems.find((i) => i.id === activePage)?.label
 
+  const selectPage = (id: PageId) => {
+    setActivePage(id)
+    setSidebarOpen(false)
+  }
+
   return (
-    <div className="flex h-screen bg-muted/30">
-      <aside className="flex w-64 shrink-0 flex-col border-r bg-card">
-        <div className="flex items-center gap-3 border-b px-6 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm">
-            <span className="text-sm font-bold text-primary-foreground">CM</span>
+    <div className="flex h-screen overflow-hidden bg-muted/30">
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-40 flex w-64 shrink-0 flex-col border-r bg-card transition-transform duration-200 ease-in-out lg:static lg:translate-x-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <div className="flex items-center justify-between gap-3 border-b px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm">
+              <span className="text-sm font-bold text-primary-foreground">CM</span>
+            </div>
+            <div>
+              <h1 className="text-sm font-bold leading-tight">Console Manager</h1>
+              <p className="text-xs text-muted-foreground">Admin Panel</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-bold leading-tight">Console Manager</h1>
-            <p className="text-xs text-muted-foreground">Admin Panel</p>
-          </div>
+          <button
+            className="text-muted-foreground hover:text-foreground lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
@@ -63,7 +103,7 @@ export default function RootLayout() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActivePage(item.id)}
+                onClick={() => selectPage(item.id)}
                 className={cn(
                   'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                   isActive
@@ -71,8 +111,8 @@ export default function RootLayout() {
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
-                <Icon className={cn('h-4 w-4', isActive ? 'text-primary' : item.color)} />
-                <span>{item.label}</span>
+                <Icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-primary' : item.color)} />
+                <span className="truncate">{item.label}</span>
               </button>
             )
           })}
@@ -100,12 +140,19 @@ export default function RootLayout() {
         </div>
       </aside>
 
-      <main className="flex flex-1 flex-col overflow-hidden">
-        <header className="shrink-0 border-b bg-card px-8 py-5">
-          <h2 className="text-xl font-semibold tracking-tight">{activeLabel}</h2>
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="flex shrink-0 items-center gap-3 border-b bg-card px-4 py-5 sm:px-8">
+          <button
+            className="text-muted-foreground hover:text-foreground lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <h2 className="truncate text-xl font-semibold tracking-tight">{activeLabel}</h2>
         </header>
 
-        <div className="flex-1 overflow-auto p-8">
+        <div className="flex-1 overflow-auto p-4 sm:p-8">
           <ActiveComponent />
         </div>
       </main>

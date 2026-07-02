@@ -20,21 +20,23 @@ export function StatCard({
   iconColorClassName,
 }: StatCardProps) {
   return (
-    <Card className="transition-shadow hover:shadow-md">
-      <CardContent className="flex items-center gap-4 p-6">
+    <Card className="h-full transition-shadow hover:shadow-md">
+      <CardContent className="flex h-full items-start gap-3 p-5">
         <div
           className={cn(
-            'flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10',
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10',
             iconClassName
           )}
         >
-          <Icon className={cn('h-6 w-6 text-primary', iconColorClassName)} />
+          <Icon className={cn('h-5 w-5 text-primary', iconColorClassName)} />
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-muted-foreground">{title}</p>
           <p className="text-2xl font-bold tracking-tight">{value}</p>
           {description && (
-            <p className="truncate text-xs text-muted-foreground">{description}</p>
+            <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
       </CardContent>

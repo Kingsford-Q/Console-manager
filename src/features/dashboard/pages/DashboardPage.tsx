@@ -39,7 +39,13 @@ export default function DashboardPage() {
   const { data: applications, isLoading: applicationsLoading } = useApplications()
 
   const isLoading =
-    gmailsLoading || certsLoading || consoleLoading || appLoading || ideaLoading
+    gmailsLoading ||
+    certsLoading ||
+    consoleLoading ||
+    appLoading ||
+    ideaLoading ||
+    paymentsLoading ||
+    applicationsLoading
 
   const usedGmails = gmails?.filter((g) => g.status === 'used').length ?? 0
   const totalGmails = gmails?.length ?? 0
@@ -65,7 +71,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           title="Gmail Accounts"
           value={totalGmails}
@@ -106,7 +112,7 @@ export default function DashboardPage() {
         />
         <StatCard
           title="Payment Details"
-          value={paymentsLoading ? '—' : paymentMethods?.length ?? 0}
+          value={paymentMethods?.length ?? 0}
           icon={CreditCard}
           description="Saved cards on file"
           iconClassName="bg-teal-500/10"
@@ -169,44 +175,44 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {applicationsLoading ? (
-            <LoadingState message="Loading console &amp; app status..." className="py-8" />
-          ) : !liveApps?.length ? (
+          {!liveApps?.length ? (
             <p className="text-sm text-muted-foreground">
               No apps are currently in review or production.
             </p>
           ) : (
             <div className="overflow-hidden rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50">
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="px-4 py-2.5 font-medium">Console</th>
-                    <th className="px-4 py-2.5 font-medium">Console Status</th>
-                    <th className="px-4 py-2.5 font-medium">Application</th>
-                    <th className="px-4 py-2.5 font-medium">App Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {liveApps.map((app) => (
-                    <tr key={app.id} className="border-b last:border-0 hover:bg-muted/30">
-                      <td className="px-4 py-2.5 font-medium">
-                        {app.console?.console_name ?? '—'}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        {app.console?.status ? (
-                          <StatusBadge status={app.console.status} />
-                        ) : (
-                          '—'
-                        )}
-                      </td>
-                      <td className="px-4 py-2.5">{app.app_name}</td>
-                      <td className="px-4 py-2.5">
-                        <StatusBadge status={app.status} />
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] text-sm">
+                  <thead className="bg-muted/50">
+                    <tr className="border-b text-left text-muted-foreground">
+                      <th className="px-4 py-2.5 font-medium">Console</th>
+                      <th className="px-4 py-2.5 font-medium">Console Status</th>
+                      <th className="px-4 py-2.5 font-medium">Application</th>
+                      <th className="px-4 py-2.5 font-medium">App Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {liveApps.map((app) => (
+                      <tr key={app.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="px-4 py-2.5 font-medium">
+                          {app.console?.console_name ?? '—'}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {app.console?.status ? (
+                            <StatusBadge status={app.console.status} />
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5">{app.app_name}</td>
+                        <td className="px-4 py-2.5">
+                          <StatusBadge status={app.status} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </CardContent>
