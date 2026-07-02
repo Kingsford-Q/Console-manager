@@ -41,7 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { statusToLabel } from '@/utils/formatting'
+import { statusToLabel, reviewDurationLabel } from '@/utils/formatting'
 
 const CONSOLE_STATUSES: ConsoleStatus[] = [
   'approved',
@@ -176,6 +176,7 @@ export default function ConsolesPage() {
                 <TableHead>Gmail</TableHead>
                 <TableHead>Certificate</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Days in Review</TableHead>
                 <TableHead>Sold</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
@@ -191,6 +192,13 @@ export default function ConsolesPage() {
                     {console.certificate?.business_name ?? '—'}
                   </TableCell>
                   <TableCell><StatusBadge status={console.status} /></TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {reviewDurationLabel(
+                      console.days_in_review,
+                      console.review_started_at,
+                      console.status === 'in_review'
+                    )}
+                  </TableCell>
                   <TableCell>
                     {console.status === 'sold' ? (
                       <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">

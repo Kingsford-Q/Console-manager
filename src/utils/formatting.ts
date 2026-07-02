@@ -44,6 +44,21 @@ export const statusToLabel = (status: string): string => {
     .join(' ')
 }
 
+export const reviewDurationLabel = (
+  daysInReview?: number | null,
+  reviewStartedAt?: string | null,
+  isCurrentlyInReview?: boolean
+): string => {
+  if (isCurrentlyInReview && reviewStartedAt) {
+    const elapsedDays = Math.floor((Date.now() - new Date(reviewStartedAt).getTime()) / 86400000)
+    return `${elapsedDays}d so far`
+  }
+  if (daysInReview !== undefined && daysInReview !== null) {
+    return `${daysInReview}d`
+  }
+  return '—'
+}
+
 export const statusToColor = (status: string): string => {
   const colorMap: { [key: string]: string } = {
     approved: 'bg-green-100 text-green-800',

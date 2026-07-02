@@ -40,7 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { statusToLabel } from '@/utils/formatting'
+import { statusToLabel, reviewDurationLabel } from '@/utils/formatting'
 
 const APP_STATUSES: ApplicationStatus[] = [
   'idea',
@@ -185,6 +185,7 @@ export default function ApplicationsPage() {
                 <TableHead>Package</TableHead>
                 <TableHead>Console</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Days in Review</TableHead>
                 <TableHead>Version</TableHead>
                 <TableHead className="w-[130px]">Actions</TableHead>
               </TableRow>
@@ -200,6 +201,13 @@ export default function ApplicationsPage() {
                     {app.console?.console_name ?? '—'}
                   </TableCell>
                   <TableCell><StatusBadge status={app.status} /></TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {reviewDurationLabel(
+                      app.days_in_review,
+                      app.review_started_at,
+                      app.status === 'under_review'
+                    )}
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{app.version}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">

@@ -33,7 +33,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { formatDateTime, statusToLabel } from '@/utils/formatting'
+import { formatDateTime, statusToLabel, reviewDurationLabel } from '@/utils/formatting'
 import { Application, ConsoleAccount } from '@/types'
 
 type ApplicationWithConsole = Application & {
@@ -322,13 +322,14 @@ export default function DashboardPage() {
           ) : (
             <div className="overflow-hidden rounded-lg border">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[560px] text-sm">
+                <table className="w-full min-w-[680px] text-sm">
                   <thead className="bg-muted/50">
                     <tr className="border-b text-left text-muted-foreground">
                       <th className="px-4 py-2.5 font-medium">Console</th>
                       <th className="px-4 py-2.5 font-medium">Console Status</th>
                       <th className="px-4 py-2.5 font-medium">Application</th>
                       <th className="px-4 py-2.5 font-medium">App Status</th>
+                      <th className="px-4 py-2.5 font-medium">Days in Review</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -347,6 +348,13 @@ export default function DashboardPage() {
                         <td className="px-4 py-2.5">{app.app_name}</td>
                         <td className="px-4 py-2.5">
                           <StatusBadge status={app.status} />
+                        </td>
+                        <td className="px-4 py-2.5 text-muted-foreground">
+                          {reviewDurationLabel(
+                            app.days_in_review,
+                            app.review_started_at,
+                            app.status === 'under_review'
+                          )}
                         </td>
                       </tr>
                     ))}
