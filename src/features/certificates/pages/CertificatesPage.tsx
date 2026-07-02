@@ -160,6 +160,7 @@ export default function CertificatesPage() {
                 <TableHead>DUNS #</TableHead>
                 <TableHead>Website</TableHead>
                 <TableHead>Usage</TableHead>
+                <TableHead>Times Used</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
@@ -185,9 +186,18 @@ export default function CertificatesPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                    <span
+                      className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+                      title="Currently-linked console accounts"
+                    >
                       {usageCounts[cert.id] || 0} console{usageCounts[cert.id] !== 1 ? 's' : ''}
                     </span>
+                  </TableCell>
+                  <TableCell
+                    className="font-medium"
+                    title="Total number of times this certificate has ever been used"
+                  >
+                    {cert.times_used ?? 0}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{formatDate(cert.created_at)}</TableCell>
                   <TableCell>

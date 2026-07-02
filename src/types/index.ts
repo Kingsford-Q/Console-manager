@@ -39,6 +39,7 @@ export interface BusinessCertificate {
   duns_number: string
   website?: string
   notes?: string
+  times_used?: number
   created_at: string
 }
 
