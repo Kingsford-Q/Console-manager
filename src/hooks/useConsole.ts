@@ -27,6 +27,7 @@ export const useCreateConsole = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consoles'] })
       queryClient.invalidateQueries({ queryKey: ['gmails'] })
+      queryClient.invalidateQueries({ queryKey: ['certificates'] })
     },
   })
 }
