@@ -137,6 +137,7 @@ export default function DashboardPage() {
           title="App Ideas"
           value={totalIdeas}
           icon={Lightbulb}
+          description={`${ideaStats?.implemented ?? 0} implemented · ${ideaStats?.planned ?? 0} planned`}
           iconClassName="bg-pink-500/10"
           iconColorClassName="text-pink-600"
         />
