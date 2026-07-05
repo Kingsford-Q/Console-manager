@@ -131,7 +131,7 @@ export default function SettingsPage() {
                     disabled={isLoading}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Takes effect immediately — use it the next time you sign in
+                    Takes effect immediately, use it the next time you sign in
                   </p>
                 </div>
                 <Button type="submit" disabled={isLoading} variant="outline" className="w-full">
