@@ -335,7 +335,7 @@ export default function ConsolesPage() {
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
         title="Delete Console Account"
-        description="This will delete the console account and reset the linked Gmail to unused."
+        description="This permanently deletes the console AND every application on it, and resets the linked Gmail to unused. If this console was sold, set its status to Sold instead — that keeps the apps and marks everything (console, Gmail, apps) as sold."
         onConfirm={handleDelete}
         loading={deleteConsole.isPending}
       />

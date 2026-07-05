@@ -206,7 +206,12 @@ export default function ApplicationsPage() {
                   <TableCell className="text-muted-foreground">
                     {app.console?.console_name ?? '—'}
                   </TableCell>
-                  <TableCell><StatusBadge status={app.status} /></TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <StatusBadge status={app.status} />
+                      {app.sold_at && <StatusBadge status="sold" />}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     {reviewDurationLabel(
                       app.days_in_review,

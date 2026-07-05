@@ -225,11 +225,7 @@ export default function AppIdeasPage() {
                     <TableCell className="text-muted-foreground">{formatDate(idea.created_at)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        {idea.status !== 'implemented' ? (
-                          <Button variant="ghost" size="icon" onClick={() => openConvert(idea)} title="Link to app">
-                            <Link2 className="h-4 w-4" />
-                          </Button>
-                        ) : idea.converted_app_id ? (
+                        {idea.converted_app_id ? (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -240,7 +236,9 @@ export default function AppIdeasPage() {
                             <Link2 className="h-4 w-4 text-emerald-600" />
                           </Button>
                         ) : (
-                          <div className="h-10 w-10" aria-hidden="true" />
+                          <Button variant="ghost" size="icon" onClick={() => openConvert(idea)} title="Link to app">
+                            <Link2 className="h-4 w-4" />
+                          </Button>
                         )}
                         <Button variant="ghost" size="icon" onClick={() => openEdit(idea)}>
                           <Pencil className="h-4 w-4" />

@@ -46,6 +46,9 @@ export const useUpdateConsole = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['consoles'] })
       queryClient.invalidateQueries({ queryKey: ['console', data.id] })
+      // Selling a console cascades: linked gmail -> sold, its apps -> sold_at
+      queryClient.invalidateQueries({ queryKey: ['gmails'] })
+      queryClient.invalidateQueries({ queryKey: ['applications'] })
     },
   })
 }
@@ -57,6 +60,10 @@ export const useDeleteConsole = () => {
     mutationFn: (id: string) => consoleService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consoles'] })
+      // Deleting a console cascades: its applications are deleted and the
+      // linked gmail is reset to unused (DB triggers), so refresh those too
+      queryClient.invalidateQueries({ queryKey: ['gmails'] })
+      queryClient.invalidateQueries({ queryKey: ['applications'] })
     },
   })
 }

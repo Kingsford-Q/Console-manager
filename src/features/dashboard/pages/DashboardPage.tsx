@@ -352,7 +352,10 @@ export default function DashboardPage() {
                         </td>
                         <td className="px-4 py-2.5">{app.app_name}</td>
                         <td className="px-4 py-2.5">
-                          <StatusBadge status={app.status} />
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <StatusBadge status={app.status} />
+                            {app.sold_at && <StatusBadge status="sold" />}
+                          </div>
                         </td>
                         <td className="px-4 py-2.5 text-muted-foreground">
                           {reviewDurationLabel(
