@@ -9,6 +9,7 @@ import {
   useApplicationStatusHistory,
 } from '@/hooks/useApplication'
 import { useConsoles } from '@/hooks/useConsole'
+import { useNow } from '@/hooks/useNow'
 import { Application, ApplicationStatus } from '@/types'
 import { PageToolbar } from '@/components/shared/page-toolbar'
 import { StatusBadge } from '@/components/shared/status-badge'
@@ -78,6 +79,7 @@ type ApplicationWithRelations = Application & {
 }
 
 export default function ApplicationsPage() {
+  useNow() // re-renders periodically so "Days in Review" keeps counting up while the page stays open
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -209,7 +211,8 @@ export default function ApplicationsPage() {
                     {reviewDurationLabel(
                       app.days_in_review,
                       app.review_started_at,
-                      app.status === 'under_review'
+                      app.status === 'under_review',
+                      app.created_at
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{app.version}</TableCell>

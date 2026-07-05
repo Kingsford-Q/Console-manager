@@ -55,6 +55,7 @@ export interface ConsoleAccount {
   review_started_at?: string
   days_in_review?: number
   sold_at?: string
+  created_at: string
 }
 
 export type ApplicationStatus = 'idea' | 'development' | 'internal_testing' | 'closed_testing' | 'open_testing' | 'under_review' | 'production' | 'suspended' | 'removed'

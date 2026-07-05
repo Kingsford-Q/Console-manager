@@ -47,16 +47,29 @@ export const statusToLabel = (status: string): string => {
 export const reviewDurationLabel = (
   daysInReview?: number | null,
   reviewStartedAt?: string | null,
-  isCurrentlyInReview?: boolean
+  isCurrentlyInReview?: boolean,
+  fallbackDate?: string | null
 ): string => {
-  if (isCurrentlyInReview && reviewStartedAt) {
-    const elapsedDays = Math.floor((Date.now() - new Date(reviewStartedAt).getTime()) / 86400000)
+  const startDate = reviewStartedAt ?? fallbackDate
+
+  if (isCurrentlyInReview && startDate) {
+    const elapsedDays = Math.floor((Date.now() - new Date(startDate).getTime()) / 86400000)
     return `${elapsedDays}d so far`
   }
   if (daysInReview !== undefined && daysInReview !== null) {
     return `${daysInReview}d`
   }
+  if (fallbackDate) {
+    const elapsedDays = Math.floor((Date.now() - new Date(fallbackDate).getTime()) / 86400000)
+    return `${elapsedDays}d`
+  }
   return '—'
+}
+
+export const soldDurationLabel = (createdAt: string, soldAt?: string | null): string => {
+  const end = soldAt ? new Date(soldAt).getTime() : Date.now()
+  const days = Math.floor((end - new Date(createdAt).getTime()) / 86400000)
+  return soldAt ? `${days}d` : `${days}d so far`
 }
 
 export const statusToColor = (status: string): string => {

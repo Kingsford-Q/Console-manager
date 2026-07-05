@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Lightbulb, Link2, Pencil, Trash2 } from 'lucide-react'
 import {
@@ -88,6 +88,11 @@ export default function AppIdeasPage() {
   const updateIdea = useUpdateAppIdea()
   const deleteIdea = useDeleteAppIdea()
   const convertIdea = useConvertAppIdea()
+
+  const sortedIdeas = useMemo(() => {
+    if (!ideas) return ideas
+    return [...ideas].sort((a, b) => IDEA_STATUSES.indexOf(a.status) - IDEA_STATUSES.indexOf(b.status))
+  }, [ideas])
 
   const openCreate = () => {
     setEditing(null)
@@ -182,7 +187,7 @@ export default function AppIdeasPage() {
 
       {isLoading ? (
         <LoadingState message="Loading app ideas..." />
-      ) : !ideas?.length ? (
+      ) : !sortedIdeas?.length ? (
         <EmptyState
           icon={Lightbulb}
           title="No app ideas"
@@ -205,31 +210,49 @@ export default function AppIdeasPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {ideas.map((idea) => (
-                <TableRow key={idea.id}>
-                  <TableCell className="font-medium">{idea.title}</TableCell>
-                  <TableCell className="text-muted-foreground">{idea.category}</TableCell>
-                  <TableCell><StatusBadge status={idea.priority} /></TableCell>
-                  <TableCell><StatusBadge status={idea.estimated_complexity} /></TableCell>
-                  <TableCell><StatusBadge status={idea.status} /></TableCell>
-                  <TableCell className="text-muted-foreground">{formatDate(idea.created_at)}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      {idea.status !== 'implemented' && (
-                        <Button variant="ghost" size="icon" onClick={() => openConvert(idea)} title="Link to app">
-                          <Link2 className="h-4 w-4" />
+              {sortedIdeas.map((idea) => {
+                const linkedApp = idea.converted_app_id
+                  ? applications?.find((app) => app.id === idea.converted_app_id)
+                  : undefined
+
+                return (
+                  <TableRow key={idea.id}>
+                    <TableCell className="font-medium">{idea.title}</TableCell>
+                    <TableCell className="text-muted-foreground">{idea.category}</TableCell>
+                    <TableCell><StatusBadge status={idea.priority} /></TableCell>
+                    <TableCell><StatusBadge status={idea.estimated_complexity} /></TableCell>
+                    <TableCell><StatusBadge status={idea.status} /></TableCell>
+                    <TableCell className="text-muted-foreground">{formatDate(idea.created_at)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        {idea.status !== 'implemented' ? (
+                          <Button variant="ghost" size="icon" onClick={() => openConvert(idea)} title="Link to app">
+                            <Link2 className="h-4 w-4" />
+                          </Button>
+                        ) : idea.converted_app_id ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            disabled
+                            className="cursor-default disabled:opacity-100"
+                            title={linkedApp ? `Linked to ${linkedApp.app_name}` : 'Linked to an application'}
+                          >
+                            <Link2 className="h-4 w-4 text-emerald-600" />
+                          </Button>
+                        ) : (
+                          <div className="h-10 w-10" aria-hidden="true" />
+                        )}
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(idea)}>
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                      )}
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(idea)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleteId(idea.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(idea.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>

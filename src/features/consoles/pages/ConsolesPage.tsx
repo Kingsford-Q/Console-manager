@@ -9,6 +9,7 @@ import {
   useConsoleStatusHistory,
 } from '@/hooks/useConsole'
 import { useGmails } from '@/hooks/useGmail'
+import { useNow } from '@/hooks/useNow'
 import { useCertificates } from '@/hooks/useCertificate'
 import { ConsoleAccount, ConsoleStatus } from '@/types'
 import { PageToolbar } from '@/components/shared/page-toolbar'
@@ -43,7 +44,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { statusToLabel, reviewDurationLabel } from '@/utils/formatting'
+import { statusToLabel, soldDurationLabel } from '@/utils/formatting'
 
 const CONSOLE_STATUSES: ConsoleStatus[] = [
   'approved',
@@ -68,6 +69,7 @@ type ConsoleWithRelations = ConsoleAccount & {
 }
 
 export default function ConsolesPage() {
+  useNow() // re-renders periodically so "Days in Review" keeps counting up while the page stays open
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -197,11 +199,7 @@ export default function ConsolesPage() {
                   </TableCell>
                   <TableCell><StatusBadge status={console.status} /></TableCell>
                   <TableCell className="text-muted-foreground">
-                    {reviewDurationLabel(
-                      console.days_in_review,
-                      console.review_started_at,
-                      console.status === 'in_review'
-                    )}
+                    {soldDurationLabel(console.created_at, console.sold_at)}
                   </TableCell>
                   <TableCell>
                     {console.status === 'sold' ? (
