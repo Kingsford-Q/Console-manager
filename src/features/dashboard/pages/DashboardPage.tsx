@@ -8,6 +8,7 @@ import { useRecentActivity } from '@/hooks/useActivity'
 import { usePaymentMethods } from '@/hooks/usePayment'
 import { useAppSalesAnalytics } from '@/hooks/useSales'
 import { useRealtimeDashboard } from '@/hooks/useRealtimeDashboard'
+import { useNow } from '@/hooks/useNow'
 import { StatCard } from '@/components/shared/stat-card'
 import { LoadingState } from '@/components/shared/loading-state'
 import { StatusBadge } from '@/components/shared/status-badge'
@@ -47,6 +48,7 @@ const formatDays = (value: number | null): string => {
 
 export default function DashboardPage() {
   useRealtimeDashboard()
+  useNow() // re-renders periodically so "Days in Review" keeps counting up while the page stays open
 
   const { user } = useAuth()
   const { data: gmails, isLoading: gmailsLoading } = useGmails()
@@ -54,7 +56,7 @@ export default function DashboardPage() {
   const { data: consoleStats, isLoading: consoleLoading } = useConsoleStats()
   const { data: appStats, isLoading: appLoading } = useApplicationStats()
   const { data: ideaStats, isLoading: ideaLoading } = useAppIdeaStats()
-  const { data: activity, isLoading: activityLoading } = useRecentActivity(8)
+  const { data: activity, isLoading: activityLoading } = useRecentActivity(10)
   const { data: paymentMethods, isLoading: paymentsLoading } = usePaymentMethods()
   const { data: applications, isLoading: applicationsLoading } = useApplications()
   const { data: consoleReviewStats, isLoading: consoleReviewLoading } = useConsoleReviewStats()
@@ -74,6 +76,8 @@ export default function DashboardPage() {
     salesLoading
 
   const usedGmails = gmails?.filter((g) => g.status === 'used').length ?? 0
+  const soldGmails = gmails?.filter((g) => g.status === 'sold').length ?? 0
+  const unusedGmails = gmails?.filter((g) => g.status === 'unused').length ?? 0
   const totalGmails = gmails?.length ?? 0
   const totalConsoles = Object.values(consoleStats ?? {}).reduce((a, b) => a + b, 0)
   const approvedConsoles = consoleStats?.approved ?? 0
@@ -102,7 +106,7 @@ export default function DashboardPage() {
           title="Gmail Accounts"
           value={totalGmails}
           icon={Mail}
-          description={`${usedGmails} used · ${totalGmails - usedGmails} available`}
+          description={`${usedGmails} used · ${soldGmails} sold · ${unusedGmails} available`}
           iconClassName="bg-blue-500/10"
           iconColorClassName="text-blue-600"
         />
@@ -353,7 +357,8 @@ export default function DashboardPage() {
                           {reviewDurationLabel(
                             app.days_in_review,
                             app.review_started_at,
-                            app.status === 'under_review'
+                            app.status === 'under_review',
+                            app.created_at
                           )}
                         </td>
                       </tr>

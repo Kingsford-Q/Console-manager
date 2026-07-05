@@ -2,16 +2,19 @@ import { Badge } from '@/components/ui/badge'
 import { statusToLabel } from '@/utils/formatting'
 import { cn } from '@/lib/utils'
 
-const statusVariantMap: Record<string, 'success' | 'warning' | 'info' | 'error' | 'secondary' | 'default'> = {
+const statusVariantMap: Record<string, 'success' | 'warning' | 'info' | 'error' | 'secondary' | 'default' | 'purple' | 'orange'> = {
   approved: 'success',
   production: 'success',
   implemented: 'success',
   pending_payment: 'warning',
   pending_verification: 'info',
   under_review: 'warning',
+  in_review: 'warning',
   suspended: 'error',
   rejected: 'error',
   removed: 'error',
+  faulty: 'orange',
+  sold: 'purple',
   used: 'info',
   unused: 'secondary',
   closed: 'secondary',

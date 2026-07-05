@@ -181,7 +181,8 @@ export default function GmailsPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setDeleteId(gmail.id)}
-                        disabled={gmail.status === 'used'}
+                        disabled={gmail.status !== 'unused'}
+                        title={gmail.status !== 'unused' ? 'Only unused Gmail accounts can be deleted' : undefined}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
