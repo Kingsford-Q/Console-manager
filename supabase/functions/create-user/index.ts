@@ -11,14 +11,28 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const VALID_ROLES = ['SUPER_ADMIN', 'READ_ONLY']
 
+// Browsers send a CORS preflight (OPTIONS) before the real POST when calling
+// an Edge Function from a different origin (e.g. the deployed Vercel app).
+// Without these headers on every response, the browser blocks the request
+// before it even reaches this code.
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
 }
 
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   if (req.method !== 'POST') {
     return json({ error: 'Method not allowed' }, 405)
   }
