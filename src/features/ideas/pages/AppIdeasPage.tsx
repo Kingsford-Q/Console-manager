@@ -10,6 +10,7 @@ import {
 } from '@/hooks/useAppIdea'
 import { useApplications } from '@/hooks/useApplication'
 import { AppIdea, AppIdeaStatus } from '@/types'
+import { useAuth } from '@/features/auth/context'
 import { PageToolbar } from '@/components/shared/page-toolbar'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { LoadingState } from '@/components/shared/loading-state'
@@ -69,6 +70,7 @@ const emptyForm: IdeaForm = {
 }
 
 export default function AppIdeasPage() {
+  const { canEdit } = useAuth()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -181,7 +183,7 @@ export default function AppIdeasPage() {
           value: s,
           label: statusToLabel(s),
         }))}
-        onAdd={openCreate}
+        onAdd={canEdit ? openCreate : undefined}
         addLabel="Add Idea"
       />
 
@@ -191,9 +193,9 @@ export default function AppIdeasPage() {
         <EmptyState
           icon={Lightbulb}
           title="No app ideas"
-          description="Capture your next app concept in the idea backlog."
-          actionLabel="Add Idea"
-          onAction={openCreate}
+          description={canEdit ? 'Capture your next app concept in the idea backlog.' : 'No app ideas yet.'}
+          actionLabel={canEdit ? 'Add Idea' : undefined}
+          onAction={canEdit ? openCreate : undefined}
         />
       ) : (
         <div className="rounded-lg border bg-card">
@@ -236,16 +238,22 @@ export default function AppIdeasPage() {
                             <Link2 className="h-4 w-4 text-emerald-600" />
                           </Button>
                         ) : (
-                          <Button variant="ghost" size="icon" onClick={() => openConvert(idea)} title="Link to app">
-                            <Link2 className="h-4 w-4" />
-                          </Button>
+                          canEdit && (
+                            <Button variant="ghost" size="icon" onClick={() => openConvert(idea)} title="Link to app">
+                              <Link2 className="h-4 w-4" />
+                            </Button>
+                          )
                         )}
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(idea)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(idea.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {canEdit && (
+                          <>
+                            <Button variant="ghost" size="icon" onClick={() => openEdit(idea)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => setDeleteId(idea.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -256,6 +264,7 @@ export default function AppIdeasPage() {
         </div>
       )}
 
+      {canEdit && (
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto max-w-lg">
           <DialogHeader>
@@ -370,7 +379,9 @@ export default function AppIdeasPage() {
           </form>
         </DialogContent>
       </Dialog>
+      )}
 
+      {canEdit && (
       <Dialog open={convertOpen} onOpenChange={setConvertOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -404,6 +415,7 @@ export default function AppIdeasPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      )}
 
       <ConfirmDialog
         open={!!deleteId}

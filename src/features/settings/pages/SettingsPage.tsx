@@ -1,13 +1,25 @@
 import { useState } from 'react'
 import { useAuth } from '@/features/auth/context'
+import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { UserRole } from '@/types'
 import { toast } from 'sonner'
 
 export default function SettingsPage() {
-  const { user, session, updateProfile, updatePassword, updateEmail } = useAuth()
+  const { user, session, canEdit, updateProfile, updatePassword, updateEmail } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   // Profile form state
@@ -17,6 +29,53 @@ export default function SettingsPage() {
   // Password form state
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+
+  // Add user dialog state
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false)
+  const [isCreatingUser, setIsCreatingUser] = useState(false)
+  const [newUserFullName, setNewUserFullName] = useState('')
+  const [newUserEmail, setNewUserEmail] = useState('')
+  const [newUserPassword, setNewUserPassword] = useState('')
+  const [newUserRole, setNewUserRole] = useState<UserRole>('READ_ONLY')
+
+  const resetAddUserForm = () => {
+    setNewUserFullName('')
+    setNewUserEmail('')
+    setNewUserPassword('')
+    setNewUserRole('READ_ONLY')
+  }
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (newUserPassword.length < 8) {
+      toast.error('Password must be at least 8 characters')
+      return
+    }
+
+    setIsCreatingUser(true)
+    try {
+      const { error } = await supabase.functions.invoke('create-user', {
+        body: {
+          email: newUserEmail,
+          password: newUserPassword,
+          full_name: newUserFullName,
+          role: newUserRole,
+        },
+      })
+
+      if (error) throw error
+
+      toast.success(`${newUserFullName} was added as ${newUserRole === 'READ_ONLY' ? 'Read Only' : 'Super Admin'}`)
+      resetAddUserForm()
+      setIsAddUserOpen(false)
+    } catch (error: any) {
+      toast.error(error?.context?.error || error?.message || 'Failed to create user')
+      console.error(error)
+    } finally {
+      setIsCreatingUser(false)
+    }
+  }
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -205,6 +264,97 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {canEdit && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
+            <div>
+              <CardTitle>Team</CardTitle>
+              <CardDescription>Add a new user and set their access level</CardDescription>
+            </div>
+            <Dialog
+              open={isAddUserOpen}
+              onOpenChange={(open) => {
+                setIsAddUserOpen(open)
+                if (!open) resetAddUserForm()
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button>Add User</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <form onSubmit={handleCreateUser}>
+                  <DialogHeader>
+                    <DialogTitle>Add User</DialogTitle>
+                    <DialogDescription>
+                      They can sign in immediately with this email and password, and change either from their own
+                      Settings page.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="newUserFullName">Full Name</Label>
+                      <Input
+                        id="newUserFullName"
+                        value={newUserFullName}
+                        onChange={(e) => setNewUserFullName(e.target.value)}
+                        placeholder="Jane Doe"
+                        required
+                        disabled={isCreatingUser}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newUserEmail">Email</Label>
+                      <Input
+                        id="newUserEmail"
+                        type="email"
+                        value={newUserEmail}
+                        onChange={(e) => setNewUserEmail(e.target.value)}
+                        placeholder="jane@example.com"
+                        required
+                        disabled={isCreatingUser}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newUserPassword">Temporary Password</Label>
+                      <Input
+                        id="newUserPassword"
+                        type="password"
+                        value={newUserPassword}
+                        onChange={(e) => setNewUserPassword(e.target.value)}
+                        placeholder="At least 8 characters"
+                        required
+                        disabled={isCreatingUser}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newUserRole">Access Level</Label>
+                      <Select
+                        value={newUserRole}
+                        onValueChange={(value) => setNewUserRole(value as UserRole)}
+                        disabled={isCreatingUser}
+                      >
+                        <SelectTrigger id="newUserRole">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="READ_ONLY">Read Only — can view, not edit</SelectItem>
+                          <SelectItem value="SUPER_ADMIN">Super Admin — full access</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={isCreatingUser}>
+                      {isCreatingUser ? 'Creating...' : 'Create User'}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+        </Card>
+      )}
     </div>
   )
 }

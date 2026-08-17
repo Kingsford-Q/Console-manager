@@ -8,6 +8,7 @@ import {
   useDeleteCertificate,
 } from '@/hooks/useCertificate'
 import { BusinessCertificate } from '@/types'
+import { useAuth } from '@/features/auth/context'
 import { PageToolbar } from '@/components/shared/page-toolbar'
 import { LoadingState } from '@/components/shared/loading-state'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -42,6 +43,7 @@ const emptyForm = {
 }
 
 export default function CertificatesPage() {
+  const { canEdit } = useAuth()
   const [search, setSearch] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -112,7 +114,7 @@ export default function CertificatesPage() {
         search={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search by business or certificate number..."
-        onAdd={openCreate}
+        onAdd={canEdit ? openCreate : undefined}
         addLabel="Add Certificate"
       />
 
@@ -122,9 +124,9 @@ export default function CertificatesPage() {
         <EmptyState
           icon={Award}
           title="No certificates"
-          description="Add your first business certificate to get started."
-          actionLabel="Add Certificate"
-          onAction={openCreate}
+          description={canEdit ? 'Add your first business certificate to get started.' : 'No certificates yet.'}
+          actionLabel={canEdit ? 'Add Certificate' : undefined}
+          onAction={canEdit ? openCreate : undefined}
         />
       ) : (
         <div className="rounded-lg border bg-card">
@@ -137,7 +139,7 @@ export default function CertificatesPage() {
                 <TableHead>Website</TableHead>
                 <TableHead>Usage</TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                {canEdit && <TableHead className="w-[100px]">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -169,16 +171,18 @@ export default function CertificatesPage() {
                     </span>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{formatDate(cert.created_at)}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(cert)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleteId(cert.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  {canEdit && (
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(cert)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(cert.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -186,6 +190,7 @@ export default function CertificatesPage() {
         </div>
       )}
 
+      {canEdit && (
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -251,6 +256,7 @@ export default function CertificatesPage() {
           </form>
         </DialogContent>
       </Dialog>
+      )}
 
       <ConfirmDialog
         open={!!deleteId}

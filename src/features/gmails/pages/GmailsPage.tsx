@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { Mail, Pencil, Trash2 } from 'lucide-react'
 import { useGmails, useCreateGmail, useUpdateGmail, useDeleteGmail } from '@/hooks/useGmail'
 import { Gmail } from '@/types'
+import { useAuth } from '@/features/auth/context'
 import { PageToolbar } from '@/components/shared/page-toolbar'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { LoadingState } from '@/components/shared/loading-state'
@@ -53,6 +54,7 @@ const emptyForm: GmailForm = {
 }
 
 export default function GmailsPage() {
+  const { canEdit } = useAuth()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -135,7 +137,7 @@ export default function GmailsPage() {
           { value: 'sold', label: 'Sold' },
         ]}
         filterPlaceholder="All statuses"
-        onAdd={openCreate}
+        onAdd={canEdit ? openCreate : undefined}
         addLabel="Add Gmail"
       />
 
@@ -145,9 +147,9 @@ export default function GmailsPage() {
         <EmptyState
           icon={Mail}
           title="No Gmail accounts"
-          description="Add your first Gmail account to get started."
-          actionLabel="Add Gmail"
-          onAction={openCreate}
+          description={canEdit ? 'Add your first Gmail account to get started.' : 'No Gmail accounts yet.'}
+          actionLabel={canEdit ? 'Add Gmail' : undefined}
+          onAction={canEdit ? openCreate : undefined}
         />
       ) : (
         <div className="rounded-lg border bg-card">
@@ -158,7 +160,7 @@ export default function GmailsPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Created By</TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                {canEdit && <TableHead className="w-[100px]">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -172,22 +174,24 @@ export default function GmailsPage() {
                   <TableCell className="text-muted-foreground">
                     {formatDate(gmail.created_at)}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(gmail)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteId(gmail.id)}
-                        disabled={gmail.status !== 'unused'}
-                        title={gmail.status !== 'unused' ? 'Only unused Gmail accounts can be deleted' : undefined}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  {canEdit && (
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(gmail)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteId(gmail.id)}
+                          disabled={gmail.status !== 'unused'}
+                          title={gmail.status !== 'unused' ? 'Only unused Gmail accounts can be deleted' : undefined}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -195,6 +199,7 @@ export default function GmailsPage() {
         </div>
       )}
 
+      {canEdit && (
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -268,6 +273,7 @@ export default function GmailsPage() {
           </form>
         </DialogContent>
       </Dialog>
+      )}
 
       <ConfirmDialog
         open={!!deleteId}

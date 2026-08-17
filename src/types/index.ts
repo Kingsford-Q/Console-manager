@@ -1,4 +1,4 @@
-export type UserRole = 'SUPER_ADMIN'
+export type UserRole = 'SUPER_ADMIN' | 'READ_ONLY'
 
 export interface Profile {
   id: string
@@ -8,16 +8,23 @@ export interface Profile {
   updated_at: string
 }
 
+export type PaymentMethodType = 'card' | 'bank'
+
 export interface PaymentMethod {
   id: string
-  card_number: string
+  type: PaymentMethodType
   card_holder_name: string
-  expiration: string
-  cvv: string
   country: string
-  street: string
   notes?: string
   created_at: string
+  // Card fields (type === 'card')
+  card_number?: string | null
+  expiration?: string | null
+  cvv?: string | null
+  street?: string | null
+  // Bank fields (type === 'bank')
+  bank_name?: string | null
+  account_number?: string | null
 }
 
 export interface Gmail {

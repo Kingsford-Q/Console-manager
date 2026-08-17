@@ -12,6 +12,7 @@ import { useGmails } from '@/hooks/useGmail'
 import { useNow } from '@/hooks/useNow'
 import { useCertificates } from '@/hooks/useCertificate'
 import { ConsoleAccount, ConsoleStatus } from '@/types'
+import { useAuth } from '@/features/auth/context'
 import { PageToolbar } from '@/components/shared/page-toolbar'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { LoadingState } from '@/components/shared/loading-state'
@@ -70,6 +71,7 @@ type ConsoleWithRelations = ConsoleAccount & {
 
 export default function ConsolesPage() {
   useNow() // re-renders periodically so "Days in Review" keeps counting up while the page stays open
+  const { canEdit } = useAuth()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -159,7 +161,7 @@ export default function ConsolesPage() {
           value: s,
           label: statusToLabel(s),
         }))}
-        onAdd={openCreate}
+        onAdd={canEdit ? openCreate : undefined}
         addLabel="Add Console"
       />
 
@@ -169,9 +171,11 @@ export default function ConsolesPage() {
         <EmptyState
           icon={Monitor}
           title="No console accounts"
-          description="Create a console account by linking a Gmail and certificate."
-          actionLabel="Add Console"
-          onAction={openCreate}
+          description={
+            canEdit ? 'Create a console account by linking a Gmail and certificate.' : 'No console accounts yet.'
+          }
+          actionLabel={canEdit ? 'Add Console' : undefined}
+          onAction={canEdit ? openCreate : undefined}
         />
       ) : (
         <div className="rounded-lg border bg-card">
@@ -222,12 +226,16 @@ export default function ConsolesPage() {
                       >
                         <History className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(console)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleteId(console.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {canEdit && (
+                        <>
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(console)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteId(console.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -237,6 +245,7 @@ export default function ConsolesPage() {
         </div>
       )}
 
+      {canEdit && (
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -330,6 +339,7 @@ export default function ConsolesPage() {
           </form>
         </DialogContent>
       </Dialog>
+      )}
 
       <ConfirmDialog
         open={!!deleteId}

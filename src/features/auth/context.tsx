@@ -7,6 +7,7 @@ interface AuthContextType {
   session: Session | null
   user: Profile | null
   loading: boolean
+  canEdit: boolean
   signOut: () => Promise<void>
   updateProfile: (updates: Partial<Profile>) => Promise<void>
   updatePassword: (newPassword: string) => Promise<void>
@@ -124,8 +125,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const canEdit = user?.role === 'SUPER_ADMIN'
+
   return (
-    <AuthContext.Provider value={{ session, user, loading, signOut, updateProfile, updatePassword, updateEmail }}>
+    <AuthContext.Provider
+      value={{ session, user, loading, canEdit, signOut, updateProfile, updatePassword, updateEmail }}
+    >
       {children}
     </AuthContext.Provider>
   )

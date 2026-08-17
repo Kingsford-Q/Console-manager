@@ -11,6 +11,7 @@ import {
 import { useConsoles } from '@/hooks/useConsole'
 import { useNow } from '@/hooks/useNow'
 import { Application, ApplicationStatus } from '@/types'
+import { useAuth } from '@/features/auth/context'
 import { PageToolbar } from '@/components/shared/page-toolbar'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { LoadingState } from '@/components/shared/loading-state'
@@ -80,6 +81,7 @@ type ApplicationWithRelations = Application & {
 
 export default function ApplicationsPage() {
   useNow() // re-renders periodically so "Days in Review" keeps counting up while the page stays open
+  const { canEdit } = useAuth()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -168,7 +170,7 @@ export default function ApplicationsPage() {
           value: s,
           label: statusToLabel(s),
         }))}
-        onAdd={openCreate}
+        onAdd={canEdit ? openCreate : undefined}
         addLabel="Add Application"
       />
 
@@ -178,9 +180,11 @@ export default function ApplicationsPage() {
         <EmptyState
           icon={FileText}
           title="No applications"
-          description="Add your first Android application to track its lifecycle."
-          actionLabel="Add Application"
-          onAction={openCreate}
+          description={
+            canEdit ? 'Add your first Android application to track its lifecycle.' : 'No applications yet.'
+          }
+          actionLabel={canEdit ? 'Add Application' : undefined}
+          onAction={canEdit ? openCreate : undefined}
         />
       ) : (
         <div className="rounded-lg border bg-card">
@@ -243,12 +247,16 @@ export default function ApplicationsPage() {
                       >
                         <History className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(app)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleteId(app.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {canEdit && (
+                        <>
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(app)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteId(app.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -258,6 +266,7 @@ export default function ApplicationsPage() {
         </div>
       )}
 
+      {canEdit && (
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto max-w-lg">
           <DialogHeader>
@@ -393,6 +402,7 @@ export default function ApplicationsPage() {
           </form>
         </DialogContent>
       </Dialog>
+      )}
 
       <ConfirmDialog
         open={!!deleteId}
